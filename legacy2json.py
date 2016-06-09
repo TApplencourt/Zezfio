@@ -7,7 +7,7 @@ import re
 import sys
 
 magic_split_line_regex_dim=re.compile(r' +(\w*) +(.*?)( \(.*\) ?)?$')
-magic_split_line_regex_formula=re.compile(r'^ +(\w+) +(.*?)\s*=(.*)?$')
+magic_split_line_regex_formula=re.compile(r'^ +(\w+) +(.*?)\s*=(.+)?$')
 
 
 def one_dwarf(path):
