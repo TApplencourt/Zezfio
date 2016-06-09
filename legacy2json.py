@@ -19,8 +19,8 @@ def one_dwarf(path):
     json_data = defaultdict(dict)
     
     for block in l_block:
-        l_ligne = block.split("\n")
-    
+        l_ligne = [ i for i in block.split("\n") if i ]
+
         category = l_ligne[0]
     
         l_attribute = []
