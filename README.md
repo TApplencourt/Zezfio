@@ -1,4 +1,4 @@
-#Boilerplate
+# Boilerplate
 
 ## Generate the config file
 ./legacy2json.py nuclei.ezfio_interface_config > nuclei.json
