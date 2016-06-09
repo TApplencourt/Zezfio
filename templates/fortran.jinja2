@@ -1,0 +1,167 @@
+MODULE zezfio
+
+  include 'f77_zmq.h'
+  integer(ZMQ_PTR) :: context
+  integer(ZMQ_PTR) :: responder
+
+contains
+
+  subroutine ezfio_init();
+
+    implicit none
+
+    character*(64) ::  address
+    integer        ::  rc
+
+    CALL getenv("EZFIO_ADDRESS", address)
+    
+    context   = f77_zmq_ctx_new()
+    responder = f77_zmq_socket(context, ZMQ_REQ)
+    rc        = f77_zmq_connect(responder,address)
+
+    IF ( rc == -1 ) THEN
+      print*, "Cannot connect to the server"
+      STOP 1
+    ENDIF
+
+  end subroutine ezfio_init
+
+
+  subroutine ezfio_finalize();
+
+      implicit none
+
+      integer  ::  rc
+
+      rc = f77_zmq_close(responder)
+      rc = f77_zmq_ctx_destroy(context)
+
+  end subroutine ezfio_finalize
+
+  subroutine check_exit_code(exit_code);
+  
+    implicit none
+    integer, intent(in) :: exit_code
+
+    SELECT CASE (exit_code)
+      CASE (0)
+      CASE (1)
+          print*, "IOError, the file seem to not exist"
+          STOP 1
+      CASE (126)
+          print*, "Something strange occur in server side"
+          print*, "Abbord, check the server to more info"
+          STOP 126
+      CASE DEFAULT
+          print*, "I don't know what append"
+          print*, "I doudt STOP"
+          STOP 137
+    END SELECT
+
+  end subroutine check_exit_code
+
+{% for category, attributes in json_config.iteritems() %}
+    {% for variable in attributes["attributes"] %}
+
+  subroutine ezfio_has_{{category}}_{{variable.name}}(bool)
+
+      implicit none
+      
+      logical, intent(inout)  ::  bool
+
+      integer ::  exit_code
+      integer ::  rc
+
+      rc = f77_zmq_send(responder, "has", 3, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ category }}", {{ category | length }}, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ variable.name }}", {{ variable.name | length }}, ZMQ_SNDMORE)
+
+      rc = f77_zmq_recv(responder, exit_code, 4, 0)
+      call check_exit_code(exit_code)
+      bool = (exit_code == 0)
+
+  end subroutine ezfio_has_{{category}}_{{variable.name}}
+       
+{% if '[' not in variable.dimension%}
+  subroutine ezfio_get_{{category}}_{{variable.name}}(buffer)
+
+      implicit none
+      
+      {{ typec2stuff[variable.type].fortran }}, intent(inout)  ::  buffer
+      integer ::  rc
+      integer ::  exit_code
+
+      rc = f77_zmq_send(responder, "get", 3, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ category }}", {{ category | length }}, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ variable.name }}", {{ variable.name | length }}, ZMQ_SNDMORE)
+
+      rc = f77_zmq_recv(responder, exit_code, 4, 0)
+      call check_exit_code(exit_code)
+
+      rc = f77_zmq_recv(responder, buffer, {{ typec2stuff[variable.type].size }}, 0)
+
+  end subroutine ezfio_get_{{category}}_{{variable.name}}
+
+  subroutine ezfio_set_{{category}}_{{variable.name}}(buffer)
+
+      implicit none
+      
+      {{ typec2stuff[variable.type].fortran }}, intent(inout)  ::  buffer
+      integer  ::  rc
+      integer  ::  exit_code
+
+      rc = f77_zmq_send(responder, "set", 3, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ category }}", {{ category | length }}, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ variable.name }}", {{ variable.name | length }}, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, buffer, {{ typec2stuff[variable.type].size }}, 0) 
+
+      rc = f77_zmq_recv(responder, exit_code, 4, 0)
+      call check_exit_code(exit_code)
+
+
+  end subroutine ezfio_set_{{category}}_{{variable.name}}
+
+{% else %}
+  subroutine ezfio_get_{{category}}_{{variable.name}}(buffer)
+
+      implicit none
+      
+      {{ typec2stuff[variable.type].fortran }}, intent(inout)  ::  buffer{{ variable.dimension | to_assumed_shape }}
+      integer ::  rc
+      integer ::  exit_code
+
+      rc = f77_zmq_send(responder, "get", 3, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ category }}", {{ category | length }}, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ variable.name }}", {{ variable.name | length }}, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, buffer, {{ typec2stuff[variable.type].size }}, 0) 
+
+      rc = f77_zmq_recv(responder, exit_code, 4, 0)
+      call check_exit_code(exit_code)
+
+      rc = f77_zmq_recv(responder, buffer, size(buffer)*{{ typec2stuff[variable.type].size }}, 0)
+
+  end subroutine ezfio_get_{{category}}_{{variable.name}}
+
+  subroutine ezfio_set_{{category}}_{{variable.name}}(buffer)
+
+      implicit none
+      
+      {{ typec2stuff[variable.type].fortran }}, intent(inout)  ::  buffer{{ variable.dimension | to_assumed_shape }}
+      integer  ::  rc
+      integer ::  exit_code
+
+      rc = f77_zmq_send(responder, "set", 3, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ category }}", {{ category | length }}, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, "{{ variable.name }}", {{ variable.name | length }}, ZMQ_SNDMORE)
+      rc = f77_zmq_send(responder, buffer, {{ typec2stuff[variable.type].size }}, 0) 
+
+      rc = f77_zmq_recv(responder, exit_code, 4, 0)
+      call check_exit_code(exit_code)
+
+  end subroutine ezfio_set_{{category}}_{{variable.name}}
+      {% endif %}
+
+    {% endfor %}
+{% endfor %}
+
+END MODULE zezfio

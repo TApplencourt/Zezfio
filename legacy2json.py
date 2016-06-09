@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+
+from src.convert import type_fortran2c 
+from collections import defaultdict
+
+import re
+import sys
+
+magic_split_line_regex_dim=re.compile(r' +(\w*) +(.*?)( \(.*\) ?)?$')
+magic_split_line_regex_formula=re.compile(r'^ +(\w+) +(.*?)\s*=(.*)?$')
+
+
+def one_dwarf(path):
+    with open(path,"r") as f:
+        data = f.read()
+    
+    l_block = [block for block in re.split('\n\s*\n', data) if block]
+    
+    json_data = defaultdict(dict)
+    
+    for block in l_block:
+        l_ligne = block.split("\n")
+    
+        category = l_ligne[0]
+    
+        l_attribute = []
+    
+        for attribute in l_ligne[1:]:
+    
+            info = dict()
+            
+            if "=" not in attribute:
+                l_var = [v.strip() for v in re.findall(magic_split_line_regex_dim,attribute)[0] if v]
+
+                info["name"] = l_var[0]
+                info["type"] = type_fortran2c(l_var[1])
+        
+                try:
+                    info["dimension"] = "[%s]" % l_var[2][1:-1]
+                except IndexError:
+                    info["dimension"] = "1"
+            else:
+
+                l_var = re.findall(magic_split_line_regex_formula,attribute)[0]
+
+                info["name"] = l_var[0]
+                info["type"] = type_fortran2c(l_var[1])
+                info["dimension"] = "1"
+                info["default"] = l_var[2]
+        
+            l_attribute.append(info)
+        
+        json_data[category]["attributes"] = l_attribute
+
+    return json_data
+
+
+def stz_dim_array(dimension, list_category):
+    for category in list_category:
+        old = "%s_"%category
+        new = "%s."%category
+        dimension = re.sub(r"\b%s"%old,new,dimension)
+
+    return dimension
+
+
+
+def schneewittchen(l_file):
+    d = dict()
+    for path in sys.argv[1:]:   
+        d.update(one_dwarf(path))  
+
+    return d
+
+def magic_mirror(data):
+    list_category = data.keys()
+    for category,attributes in data.iteritems():
+        for var in attributes["attributes"]:
+            var["dimension"] = stz_dim_array(var["dimension"],list_category)
+
+            try:
+                var["default"] = stz_dim_array(var["default"],list_category)
+            except KeyError:
+                pass
+
+if __name__ == '__main__':
+    
+
+    data = schneewittchen(sys.argv[1:])
+    magic_mirror(data)
+
+    import json
+    print json.dumps(data,  indent = 4)
