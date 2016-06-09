@@ -7,7 +7,7 @@ import re
 import sys
 
 magic_split_line_regex_dim=re.compile(r' +(\w*) +(.*?)( \(.*\) ?)?$')
-magic_split_line_regex_formula=re.compile(r'^ +(\w+) +(.*?)\s*=(.*)?$')
+magic_split_line_regex_formula=re.compile(r'^ +(\w+) +(.*?)\s*=(.+)?$')
 
 
 def one_dwarf(path):
@@ -19,8 +19,8 @@ def one_dwarf(path):
     json_data = defaultdict(dict)
     
     for block in l_block:
-        l_ligne = block.split("\n")
-    
+        l_ligne = [ i for i in block.split("\n") if i ]
+
         category = l_ligne[0]
     
         l_attribute = []
