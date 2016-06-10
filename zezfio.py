@@ -47,10 +47,24 @@ if __name__ == '__main__':
     c_126 = c_int(-126)
     c_0 = c_int(0)
 
-    while  True:
+    loop = True
+
+    import signal
+
+    def handler(signum, frame):
+        global loop
+        loop = False
+
+    for s in (signal.SIGQUIT, signal.SIGTERM, signal.SIGINT):
+        signal.signal(s, handler)
+
+    while loop:
 
         #Get the info
-        l = recv_multipart()
+        try:
+            l = recv_multipart()
+        except zmq.error.ZMQError:
+            break
 
         try:
             action, str_instance, name = l
