@@ -1,16 +1,16 @@
 ![](http://i.imgur.com/XUeaDoy.gif)
 
-The client/server version of Ezfio (http://irpf90.ups-tlse.fr/index.php?title=EZFIO)
+The lovely client/server version of [Ezfio](http://irpf90.ups-tlse.fr/index.php?title=EZFIO)
 
 # Dependency
-- IRPy (https://github.com/TApplencourt/IRPy)
-`pip install IRPy`
-- Jinja2 (http://jinja.pocoo.org/docs/dev/)
-`pip install Jinja2`
-- Zeromq (http://zeromq.org/)
-- Pyzmq (https://github.com/zeromq/pyzmq)
-`pip install pyzmq`
-- f77_zmq (https://github.com/zeromq/f77_zmq)
+- [IRPy](https://github.com/TApplencourt/IRPy)
+(`pip install IRPy`)
+- [Jinja2](http://jinja.pocoo.org/docs/dev/)
+(`pip install Jinja2`)
+- [Zeromq](http://zeromq.org/)
+- [Pyzmq](https://github.com/zeromq/pyzmq)
+(`pip install pyzmq`)
+- [f77_zmq](https://github.com/zeromq/f77_zmq)
 
 # Boilerplate
 
