@@ -4,7 +4,7 @@ import gzip
 def read_array(path_gz):
 
     if not os.path.isfile(path_gz):
-      raise IOError("%s don't exists"% path_gz)
+      raise IOError("%s doesn't exist"% path_gz)
 
     import tempfile
     import io
@@ -37,7 +37,7 @@ def read_array(path_gz):
 def read_scalar(path):
 
     if not os.path.isfile(path):
-      raise IOError("%s don't exists"% path)
+      raise IOError("%s doesn't exist"% path)
 
     with open(path, 'r') as f:
       data = f.read().strip()

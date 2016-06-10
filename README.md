@@ -25,8 +25,8 @@ The lovely client/server version of [Ezfio](http://irpf90.ups-tlse.fr/index.php?
 ```bash
 ./honda.py <json_config> > <file.f90>
 ```
-- Compile the library (just don't forget to link with lib_zmq.f90)
-- Link her with your `main` fortran file
+- Compile the library (just don't forget to include f77_zmq.h)
+- Link it with your `main` fortran file
 
 # Run Forrest, Run!
 

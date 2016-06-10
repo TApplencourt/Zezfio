@@ -34,6 +34,10 @@ subroutine ezfio_init()
 end subroutine ezfio_init
 
 
+subroutine ezfio_finish()
+  call ezfio_finalize()
+end subroutine ezfio_finish
+
 subroutine ezfio_finalize()
     use zezfio
 
@@ -195,6 +199,7 @@ subroutine ezfio_set_{{category}}_{{variable.name}}(buffer)
     {{ typec2stuff[variable.type].fortran }}, intent(inout)  ::  buffer(*)
     integer  ::  rc
     integer  ::  sze 
+    integer ::  exit_code
 
     call ezfio_size_{{category}}_{{variable.name}}(sze)
 
