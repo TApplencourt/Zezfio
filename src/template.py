@@ -1,8 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
 
 import os
-from src.convert import typec2stuff
-
 file_dir = os.path.dirname(os.path.abspath(__file__))
 template_dir = os.path.join(file_dir,"..","templates")
 env = Environment(loader=FileSystemLoader(template_dir))
@@ -14,8 +12,10 @@ def generate_server(json_config,db_path):
     return template
 
 def generate_fortran(json_config):
-    template = env.get_template('fortran.jinja2').render(json_config=json_config,
-                                                         typec2stuff=typec2stuff)
+
+    from src.convert import typec2stuff
+    template = env.get_template('fortran.jinja.f90').render(json_config=json_config,
+                                                            typec2stuff=typec2stuff)
     return template
 
 def importCode(code,name):
