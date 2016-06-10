@@ -4,14 +4,14 @@ The lovely client/server version of [Ezfio](http://irpf90.ups-tlse.fr/index.php?
 
 # Dependency
 - [IRPy](https://github.com/TApplencourt/IRPy)
-(`pip install IRPy`)
 - [Jinja2](http://jinja.pocoo.org/docs/dev/)
-(`pip install Jinja2`)
 - [Zeromq](http://zeromq.org/)
 - [Pyzmq](https://github.com/zeromq/pyzmq)
-(`pip install pyzmq`)
 - [f77_zmq](https://github.com/zeromq/f77_zmq)
 
+You can use [conda](http://conda.pydata.org/miniconda.html) to install all the Python Dependencies
+- `conda install -c https://conda.anaconda.org/tapplencourt jinja2 pyzmq  irpy`
+PS: You can replace the name of the package by the `tar.gz` precedingly downloaded from the [anaconda cloud](https://anaconda.org)
 # Boilerplate
 
 ## Generate the config file
