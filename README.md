@@ -3,7 +3,7 @@
 `pip install IRPy`
 - Jinja2 (http://jinja.pocoo.org/docs/dev/)
 `pip install Jinja2`
-- zmq (http://zeromq.org/)
+- Zeromq (http://zeromq.org/)
 - Pyzmq (https://github.com/zeromq/pyzmq)
 `pip install pyzmq`
 - f77_zmq (https://github.com/zeromq/f77_zmq)
