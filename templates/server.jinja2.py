@@ -28,12 +28,12 @@ class {{ category|capitalize }}(object):
     {% endif %}
 
     @irpy.lazy_property
-    def {{ variable.name }}_ctype(self):
+    def {{ variable.name }}_c(self):
         return data_py2c(self.{{ variable.name }}, '{{ variable.type }}')
 
     @irpy.lazy_property
     def {{ variable.name }}_csze(self):
-        ar = self.{{ variable.name }}_ctype
+        ar = self.{{ variable.name }}_c
         return c_int(ar.buffer_info()[1] * ar.itemsize)
 
     @irpy.lazy_property

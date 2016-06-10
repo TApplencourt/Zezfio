@@ -86,7 +86,7 @@ if __name__ == '__main__':
         elif action == "get":
             
             try:
-                array = getattr(instance,"%s_ctype" % name)
+                array = getattr(instance,"%s_c" % name)
                 size = getattr(instance, "%s_csze" % name) 
             except IOError:
                 send(c_1)
