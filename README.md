@@ -1,18 +1,68 @@
 # Boilerplate
 
 ## Generate the config file
+```bash
 ./legacy2json.py <legacy_config> > <json_config>
+```
 
-## Generate the fortran file
+## Generate and Compile the fortran file
+
+- Honda is the best electric (and fortran) generator around!
+```bash
 ./honda.py <json_config> > <file.f90>
+```
+- Compile the library (just don't forget to link with lib_zmq.f90)
+- Link her with your `main` fortran file
 
-#Run
+# Run Forrest, Run!
 
 ## Python server
+```bash
 ./zezfio.py <address> <json_config> <db_path>
+```
 
 ## Fortran
 
-- Link with zezfio.f90
-- export ZEZFIOADR=<adress>
-- Run 
+-`bash export EZFIO_ADDRESS=<address>`
+- Exec your main as usual
+
+# Code architecture
+
+```
+   +---------------------+
+   | {{ variable.name }} |
+   +---------------------+
+   | Value of variable   |   +-----------------------------+
+   | in Python format    |                                 |
+   |                     |                                 |
+   +---------------------+                                 |
+                                                           |
+              +                                            |
+              |                                            |
+              |                                            |
+              v                                            v
+
+  +-----------------------+          +----------------------------------------+
+  | {{ variable.name }}_c |          | {{ aonother_variable.name }}_dimension |
+  +-----------------------+          +----------------------------------------+
+  | Value of variable     |          | Dimension of the variable in Python    |
+  | in C format           |          | format                                 |
+  |                       |          |                                        |
+  +-----------------------+          +----------------------------------------+
+
+             +
+             |
+             |
+             v
+
++--------------------------+
+| {{ variable.name }}_csze |
++--------------------------+
+| Number of bytes in the   |
+| C format variable        |
+|                          |
++--------------------------+
+```
+
+
+
