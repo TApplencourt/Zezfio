@@ -11,7 +11,8 @@ The lovely client/server version of [Ezfio](http://irpf90.ups-tlse.fr/index.php?
 
 You can use [conda](http://conda.pydata.org/miniconda.html) to install all the Python Dependencies
 - `conda install -c https://conda.anaconda.org/tapplencourt jinja2 pyzmq  irpy`
-PS: You can replace the name of the package by the `tar.gz` precedingly downloaded from the [anaconda cloud](https://anaconda.org)
+
+*PS: You can replace the name of the package by the `tar.gz` precedingly downloaded from the [anaconda cloud](https://anaconda.org)*
 # Boilerplate
 
 ## Generate the config file
