@@ -1,6 +1,8 @@
 from jinja2 import Environment, FileSystemLoader
 
 import os
+from src.convert import typec2stuff
+
 file_dir = os.path.dirname(os.path.abspath(__file__))
 template_dir = os.path.join(file_dir,"..","templates")
 env = Environment(loader=FileSystemLoader(template_dir))
