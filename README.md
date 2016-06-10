@@ -1,15 +1,15 @@
 # Boilerplate
 
 ## Generate the config file
-./legacy2json.py nuclei.ezfio_interface_config > nuclei.json
+./legacy2json.py <legacy_config> > <json_config>
 
 ## Generate the fortran file
-./honda.py nuclei.json > fortran/zezfio.f90
+./honda.py <json_config> > <file.f90>
 
 #Run
 
-## Python
-./zezfio.py <address> <path_config> <db_path_rel>
+## Python server
+./zezfio.py <address> <json_config> <db_path>
 
 ## Fortran
 

@@ -1,7 +1,8 @@
 import irpy
 from src.database import LegacyFolderHieracy
 from src.convert import data_str2py, data_py2c, data_mv2c, data_c2py
-from src.convert import dimension2len,aors2len
+from src.convert import dimension2len
+from ctypes import c_int
 
 d_instance = dict()
 
@@ -31,24 +32,30 @@ class {{ category|capitalize }}(object):
         return data_py2c(self.{{ variable.name }}, '{{ variable.type }}')
 
     @irpy.lazy_property
+    def {{ variable.name }}_csze(self):
+        ar = self.{{ variable.name }}_ctype
+        return c_int(ar.buffer_info()[1] * ar.itemsize)
+
+    @irpy.lazy_property
     def {{ variable.name }}_dimension(self):
         return {{variable.dimension}}
 
     def set_{{ variable.name }}(self,data_raw):
-        c = data_mv2c(data_raw, '{{ variable.type }}',self.{{ variable.name }}_dimension)
-        new_len = aors2len(c)
+        ar = data_mv2c(data_raw, '{{ variable.type }}')
+
         ref_len = dimension2len(self.{{ variable.name }}_dimension)
+        new_len = len(ar)
 
         if new_len == ref_len:
-            self.{{ variable.name }} = data_c2py(c)
-            db.write(self,'{{ category }}', '{{ variable.name }}', c)
+            data_py = data_c2py(ar, self.{{ variable.name }}_dimension)
+            self.{{ variable.name }} = data_py
+            db.write(self,'{{ category }}', '{{ variable.name }}', data_py)
         else:
-            raise IndexError("{{ variable.name }} have not the right number of variable (%s vs %s)" % (ref_len,new_len) )
+            raise IndexError("{{ variable.name }} have not the right number of variable (old:%s vs new:%s)" % (ref_len,new_len) )
 
     {% endfor %}
 
-{{ category }} = {{ category|capitalize }}()
+{{ category }} = {{ category | capitalize }}()
 d_instance[ "{{ category }}" ] = {{ category }}
 
 {%  endfor %}
-

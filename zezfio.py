@@ -12,7 +12,6 @@ if __name__ == '__main__':
     address, path_config, db_path_rel= sys.argv[1:]
     db_path = os.path.abspath(db_path_rel)
 
-
     #                                     _       
     # |_|  _. ._   _| |  _     _  _  ._ _|_ o  _  
     # | | (_| | | (_| | (/_   (_ (_) | | |  | (_| 
@@ -32,10 +31,11 @@ if __name__ == '__main__':
     # __) (/_ | \/ (/_ |  
     #                     
 
-    context = zmq.Context(io_threads=8)
+    context = zmq.Context(io_threads=4)
     sock = context.socket(zmq.REP)
     sock.bind(address)
     send = sock.send
+    recv_multipart= sock.recv_multipart
 
     #  _             
     # /     o ._ _|_ 
@@ -43,51 +43,64 @@ if __name__ == '__main__':
     #    __          
 
     from ctypes import c_int
-    c_1 = c_int(1)
-    c_126 = c_int(126)
+    c_1 = c_int(-1)
+    c_126 = c_int(-126)
     c_0 = c_int(0)
 
     while  True:
 
         #Get the info
-
-        l = sock.recv_multipart()
+        l = recv_multipart()
 
         try:
             action, str_instance, name = l
         except ValueError:
             action, str_instance, name, data = l
+        else:
+            pass
 
         instance = d_instance[str_instance]
         #Get the instance
-        if action == "get":
-            
+        if action == "has":
+
             try:
-                array = getattr(instance,"%s_ctype" % name)
+                getattr(instance,name)
             except IOError:
                 send(c_1)
             except:
                 send(c_126)
-                raise
             else:
-                send(c_0,zmq.SNDMORE)
+                send(c_0)
+
+        elif action == "size":
+            
+            try:
+                sze = getattr(instance,"%s_csze" % name)
+            except IOError:
+                send(c_1)
+            except:
+                send(c_126)
+            else:
+                send(sze)
+
+        elif action == "get":
+            
+            try:
+                array = getattr(instance,"%s_ctype" % name)
+                size = getattr(instance, "%s_csze" % name) 
+            except IOError:
+                send(c_1)
+            except:
+                send(c_126)
+            else:
+                send(size,zmq.SNDMORE)
                 send(array, copy=False)
+
 
         elif action == "set":
 
             try:
                 getattr(instance,"set_%s" % name)(data)
-            except IOError:
-                send(c_1)
-            except:
-                send(c_126)
-                raise
-            else:
-                send(c_0)
-
-        elif action == "has":
-            try:
-                getattr(instance,name)
             except IOError:
                 send(c_1)
             except:

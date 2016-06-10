@@ -44,45 +44,26 @@ def data_py2c(py_data, type_):
         if code == "c":
             return array.array(code, py_data)
         else:
-            return typec2stuff[type_].c_type(py_data)
+            return array.array(code, [py_data])
 
 
-def data_c2py(c_data):
+def data_c2py(ar, dimension):
     " array -> python "
 
-    if isinstance(c_data, array.array):
-        return c_data.tolist()
-    else:
-        return c_data.value
-
-
-def data_mv2c(machine_value, type_, dimension):
-    " machine code -> array"
-
-    code = typec2stuff[type_].code
-    ar = array.array(code, machine_value)
-
     if isinstance(dimension, (list, tuple)):
-        return ar
+        return ar.tolist()
     else:
-        return typec2stuff[type_].c_type(ar[0])
+        return ar.tolist().pop()
+
+def data_mv2c(machine_value, type_):
+    " machine code -> array"
+    code = typec2stuff[type_].code
+    return array.array(code, machine_value)
 
 
 def dimension2len(dimension):
     from operator import mul
-
-    if not isinstance(dimension, (list, tuple)):
-        return dimension
-    else:
-        return reduce(mul, dimension)
-
-
-def aors2len(array_or_scalar):
-    if isinstance(array_or_scalar, array.array):
-        return len(array_or_scalar)
-    else:
-        return 1
-
+    return reduce(mul, dimension) if isinstance(dimension, (list, tuple)) else 1
 
 def type_fortran2c(ftype):
     for ctype, t in typec2stuff.iteritems():
