@@ -38,7 +38,7 @@ You can use [conda](http://conda.pydata.org/miniconda.html) to install all the P
 
 ## Fortran
 
-- `bash export EZFIO_ADDRESS=<address>`
+- `export EZFIO_ADDRESS=<address>`
 - Exec your main as usual
 
 # Code architecture
