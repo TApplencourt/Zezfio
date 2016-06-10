@@ -47,19 +47,17 @@ if __name__ == '__main__':
     c_126 = c_int(-126)
     c_0 = c_int(0)
 
-    loop = True
-
     import signal
 
-    def handler(signum, frame):
-        global loop
-        loop = False
+    class ExitLoop(Exception): pass
 
     for s in (signal.SIGQUIT, signal.SIGTERM, signal.SIGINT):
+        def handler(x,y):
+            raise ExitLoop
         signal.signal(s, handler)
 
-    while loop:
-
+    while True:
+      try:
         #Get the info
         try:
             l = recv_multipart()
@@ -124,3 +122,7 @@ if __name__ == '__main__':
 
         else:
             raise NotImplementedError
+
+      except ExitLoop:
+        break
+
