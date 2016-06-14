@@ -15,14 +15,14 @@ if __name__ == '__main__':
     # |_|  _. ._   _| |  _     _  _  ._ _|_ o  _  
     # | | (_| | | (_| | (/_   (_ (_) | | |  | (_| 
     #                                          _| 
-    from src.chandler import get_json
+    from zezfio.chandler import get_json
     json_config = get_json(path_config)
 
-    import src.template
+    import zezfio.template
 
-    code=src.template.generate_server(json_config,db_path)
+    code=zezfio.template.generate_server(json_config,db_path)
 
-    m = src.template.importCode(code,"ZEFIO")
+    m = zezfio.template.importCode(code,"ZEFIO")
     d_instance = m.d_instance
 
     #  __                 

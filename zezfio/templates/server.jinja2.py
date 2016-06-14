@@ -1,7 +1,7 @@
 import irpy
-from src.database import LegacyFolderHieracy
-from src.convert import data_str2py, data_py2c, data_mv2c, data_c2py
-from src.convert import dimension2len
+from zezfio.database import LegacyFolderHieracy
+from zezfio.convert import data_str2py, data_py2c, data_mv2c, data_c2py
+from zezfio.convert import dimension2len
 from ctypes import c_int
 
 d_instance = dict()
