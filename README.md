@@ -2,6 +2,7 @@
 
 The lovely client/server version of [Ezfio](http://irpf90.ups-tlse.fr/index.php?title=EZFIO)
 
+
 # Dependency
 - [IRPy](https://github.com/TApplencourt/IRPy)
 - [Jinja2](http://jinja.pocoo.org/docs/dev/)
@@ -9,11 +10,15 @@ The lovely client/server version of [Ezfio](http://irpf90.ups-tlse.fr/index.php?
 - [Pyzmq](https://github.com/zeromq/pyzmq)
 - [f77_zmq](https://github.com/zeromq/f77_zmq)
 
-You can use [conda](http://conda.pydata.org/miniconda.html) to install all the Python Dependencies
+You can use [pip](https://pip.pypa.io/en/stable/installing/) to install all the Python Dependencies
+- `pip install zezfio`
+
+Or you can use [conda](http://conda.pydata.org/miniconda.html) to install all the Python Dependencies (+ ZMQ)
 - `conda install -c https://conda.anaconda.org/tapplencourt jinja2 pyzmq  irpy`
 
 *PS: You can replace the name of the package by the `tar.gz` precedingly downloaded from the [anaconda cloud](https://anaconda.org)*
 # Boilerplate
+
 
 ## Generate the config file
 ```bash
