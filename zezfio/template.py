@@ -13,8 +13,8 @@ def generate_server(json_config,db_path):
 
 def generate_fortran(json_config):
 
-    from src.convert import typec2stuff
-    template = env.get_template('fortran.jinja.f90').render(json_config=json_config,
+    from zezfio.convert import typec2stuff
+    template = env.get_template('fortran.jinja2.f90').render(json_config=json_config,
                                                             typec2stuff=typec2stuff)
     return template
 
