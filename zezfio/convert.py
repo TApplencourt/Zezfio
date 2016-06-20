@@ -62,7 +62,9 @@ def data_c2py(ar, dimension):
 
 def data_mv2c(machine_value, type_):
     " machine code -> array"
+    print machine_value, type_
     code = typec2stuff[type_].code
+    print code
     return array.array(code, machine_value)
 
 
