@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import zmq
 
+
 def main_loop(sock, d_instance):
 
     # ~#~#~#~#
@@ -15,7 +16,7 @@ def main_loop(sock, d_instance):
     # Little_optimisation
     # ~#~#~#~#
     send = sock.send
-    recv_multipart= sock.recv_multipart
+    recv_multipart = sock.recv_multipart
 
     # ~#~#~#
     # Do the work
@@ -39,7 +40,7 @@ def main_loop(sock, d_instance):
     if action == "has":
 
         try:
-            getattr(instance,name)
+            getattr(instance, name)
         except IOError:
             send(c_1)
         except:
@@ -48,9 +49,9 @@ def main_loop(sock, d_instance):
             send(c_0)
 
     elif action == "size":
-            
+
         try:
-            sze = getattr(instance,"%s_csze" % name)
+            sze = getattr(instance, "%s_csze" % name)
         except IOError:
             send(c_1)
         except:
@@ -59,23 +60,22 @@ def main_loop(sock, d_instance):
             send(sze)
 
     elif action == "get":
-            
+
         try:
-            array = getattr(instance,"%s_c" % name)
-            size = getattr(instance, "%s_csze" % name) 
+            array = getattr(instance, "%s_c" % name)
+            size = getattr(instance, "%s_csze" % name)
         except IOError:
             send(c_1)
         except:
             send(c_126)
         else:
-            send(size,zmq.SNDMORE)
+            send(size, zmq.SNDMORE)
             send(array, copy=False)
-
 
     elif action == "set":
 
         try:
-            getattr(instance,"set_%s" % name)(data)
+            getattr(instance, "set_%s" % name)(data)
         except IOError:
             send(c_1)
         except:
@@ -86,31 +86,32 @@ def main_loop(sock, d_instance):
     else:
         raise NotImplementedError
 
+
 if __name__ == '__main__':
 
     #  _             
     # |_) _. _|_ |_  
     # |  (_|  |_ | | 
-    #                
+    #
     import sys, os
-    address, path_config, db_path_rel= sys.argv[1:]
+    address, path_config, db_path_rel = sys.argv[1:]
     db_path = os.path.abspath(db_path_rel)
 
     #                                     _       
     # |_|  _. ._   _| |  _     _  _  ._ _|_ o  _  
     # | | (_| | | (_| | (/_   (_ (_) | | |  | (_| 
-    #                                          _| 
+    #                                          _|
     from zezfio.chandler import get_json
     json_config = get_json(path_config)
 
     import zezfio.template
-    code=zezfio.template.generate_server(json_config,db_path)
-    m = zezfio.template.importCode(code,"ZEFIO")
+    code = zezfio.template.generate_server(json_config, db_path)
+    m = zezfio.template.importCode(code, "ZEFIO")
 
     #  __                 
     # (_   _  ._    _  ._ 
     # __) (/_ | \/ (/_ |  
-    #                     
+    #
     context = zmq.Context(io_threads=4)
     sock = context.socket(zmq.REP)
     sock.bind(address)
@@ -120,4 +121,3 @@ if __name__ == '__main__':
             main_loop(sock, m.d_instance)
         except zezfio.ExitLoop:
             break
-
