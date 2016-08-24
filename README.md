@@ -60,10 +60,10 @@ Or you can use [conda](http://conda.pydata.org/miniconda.html) to install the Py
               |                                |
               v                                v
   +-----------------------+    +----------------------------------------+
-  | {{ variable.name }}_c |    | {{ aonother_variable.name }}_dimension |
+  | {{ variable.name }}_c |    | {{ another_variable.name }}_dimension  |
   +-----------------------+    +----------------------------------------+
-  | Value of variable     |    | Dimension of the variable in Python    |
-  | in C format           |    | format                                 |
+  | Value of variable     |    | Dimension of another variable in       |
+  | in C format           |    | Python format (ie [ao_num])            |
   +-----------------------+    +----------------------------------------+
              +
              |

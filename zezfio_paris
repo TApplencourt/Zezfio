@@ -53,9 +53,11 @@ if __name__ == '__main__':
             except ValueError:
                 action, str_instance, name, data = l
             else:
+                print "Error when reading the multipart message"
                 raise zezfio.ExitLoop
 
             instance = d_instance[str_instance]
+
             #Get the instance
             if action == "has":
 
