@@ -29,9 +29,13 @@ typec2stuff = {
     "double"   : Type('d',   8, float,                         c_double, "DOUBLE PRECISION")
 }
 
-def data_str2py(str_data, type_):
+def str2py(str_data, type_):
     " str -> python "
-    fct = typec2stuff[type_].python
+
+    try:
+        fct = typec2stuff[type_].python
+    except KeyError:
+        raise TypeError, "Error: cannot convert str to %s" % type_
 
     if isinstance(str_data, (list, tuple)):
         return map(fct, str_data)

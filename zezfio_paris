@@ -46,17 +46,27 @@ if __name__ == '__main__':
             try:
                 l = recv_multipart()
             except zmq.error.ZMQError:
+                print "Error when asking for a multipart message"
                 raise zezfio.ExitLoop
 
-            try:
+            print l
+
+            if len(l) == 3:
                 action, str_instance, name = l
-            except ValueError:
+            elif len(l) == 4:
                 action, str_instance, name, data = l
             else:
-                print "Error when reading the multipart message"
-                raise zezfio.ExitLoop
+                print "Error when reading the multipart message %s", l
+                print "Sending error message to the client"
+                send(fail_126)
+                continue
 
-            instance = d_instance[str_instance]
+            try:
+                instance = d_instance[str_instance]
+            except Exception as e:
+                print "Error", e
+                send(fail_126)
+                continue
 
             #Get the instance
             if action == "has":
@@ -86,11 +96,14 @@ if __name__ == '__main__':
                 try:
                     array = getattr(instance, "%s_c" % name)
                     size = getattr(instance, "%s_csze" % name)
-                except IOError:
+                except IOError as e:
+                    print "IOError", e
                     send(fail_1)
-                except:
+                except Exception as e:
+                    print "IOError:", e
                     send(fail_126)
                 else:
+                    print "All good"
                     send(size, zmq.SNDMORE)
                     send(array, copy=False)
 
@@ -106,7 +119,9 @@ if __name__ == '__main__':
                     send(fail_0)
 
             else:
+                print "wtf"
                 raise NotImplementedError
 
         except zezfio.ExitLoop:
+            print "wtf"
             break

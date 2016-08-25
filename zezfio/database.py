@@ -1,88 +1,46 @@
 import os
-import gzip
+from zezfio.convert import str2py
 
+from ctypes import cdll, c_int, POINTER, byref
 
-def read_array(path_gz):
-
-    if not os.path.isfile(path_gz):
-        raise IOError("%s doesn't exist" % path_gz)
-
-    import tempfile
-    import io
-    import subprocess
-
-    tmpdir = tempfile.mkdtemp()
-    tmp_fifo = os.path.join(tmpdir, 'fifo')
-
-    os.mkfifo(tmp_fifo)
-
-    try:
-        p = subprocess.Popen("gzip --stdout -d %s > %s" % (path_gz, tmp_fifo),
-                             shell=True)
-        f = io.open(tmp_fifo, "r")
-
-        data = []
-        while True:
-            line = f.readline()
-            if not line:
-                break
-            else:
-                data.append(line.strip())
-    finally:
-        f.close()
-        p.wait()
-        os.remove(tmp_fifo)
-        os.rmdir(tmpdir)
-
-    return data
-
-
-def read_scalar(path):
-
-    if not os.path.isfile(path):
-        raise IOError("%s doesn't exist" % path)
-
-    with open(path, 'r') as f:
-        data = f.read().strip()
-    return data
-
+path_dll = os.path.join(os.path.dirname(__file__),'c','gz2ar.so')
+dll = cdll.LoadLibrary(path_dll)
 
 class LegacyFolderHieracy(object):
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, root_path):
 
-    def read(self, instance, category, name):
-        """Read str"""
+        if not os.path.isdir(root_path):
+            raise  IOError("Error: %s is not a directory" % root_path)
 
-        dimension = getattr(instance, "%s_dimension" % name)
-        path = os.path.join(self.path, category, name)
+        self.root_path = root_path
 
-        if isinstance(dimension, (list, tuple)):
-            data = read_array("%s.gz" % path)[2:]
-        else:
-            data = read_scalar(path)
+    def read_scalar(self,category,name,type_):
+        "Return Py Object"
+
+        path = os.path.join(self.root_path, category, name)
+        if not os.path.isfile(path):
+            raise IOError("%s doesn't exist" % path)
+    
+        with open(path, 'r') as f:
+            data = f.read().strip()
+
+        return str2py(data, type_)
+
+    def read_array(self, category, name, type_, dimension):
+    
+        path = os.path.join(self.root_path, category, name+".gz")
+        if not os.path.isfile(path):
+            raise IOError("%s doesn't exist" % path)
+
+        error_code = c_int()
+        try:
+            dll.ezfio_extract_int.restype = POINTER(c_int * dimension)
+        except OverflowError:
+            raise OverflowError("Check the dimension of the array (%s)"%dimension)
+    
+        data = dll.ezfio_extract_int(path,dimension, byref(error_code)).contents
+        
+        if error_code.value:
+            raise RuntimeError("Error when running the C code.")
+    
         return data
-
-    def write(self, instance, category, name, py_data):
-
-        dimension = getattr(instance, "%s_dimension" % name)
-        path = os.path.join(self.path, category, name)
-
-        if not os.path.exists(os.path.dirname(path)):
-            try:
-                os.makedirs(os.path.dirname(path))
-            except OSError as exc:  # Guard against race condition
-                if exc.errno != errno.EEXIST:
-                    raise
-
-        if isinstance(dimension, (list, tuple)):
-            header = [str(len(dimension)),
-                      " " * 4 + " ".join(map(str, dimension))]
-            data_str = [value for value in map(str, py_data)]
-
-            with gzip.open("%s.gz" % path, "wb") as f:
-                f.write("\n".join(header + data_str) + "\n")
-        else:
-            data_str_flaten = str(py_data).strip()
-            with open(path, "w") as f:
-                f.write(data_str_flaten + "\n")

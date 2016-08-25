@@ -40,19 +40,19 @@ class {{ category|capitalize }}(object):
     def {{ variable.name }}_dimension(self):
         return {{variable.dimension}}
 
-    def set_{{ variable.name }}(self,data_raw):
-        ar = data_mv2c(data_raw, '{{ variable.type }}')
-
-        ref_len = dimension2len(self.{{ variable.name }}_dimension)
-        new_len = len(ar)
-
-        if new_len == ref_len:
-            data_py = data_c2py(ar, self.{{ variable.name }}_dimension)
-            self.{{ variable.name }} = data_py
-            db.write(self,'{{ category }}', '{{ variable.name }}', data_py)
-        else:
-            raise IndexError("{{ variable.name }} have not the right number of variable (old:%s vs new:%s)" % (ref_len,new_len) )
-
+#    def set_{{ variable.name }}(self,data_raw):
+#        ar = data_mv2c(data_raw, '{{ variable.type }}')
+#
+#        ref_len = dimension2len(self.{{ variable.name }}_dimension)
+#        new_len = len(ar)
+#
+#        if new_len == ref_len:
+#            data_py = data_c2py(ar, self.{{ variable.name }}_dimension)
+#            self.{{ variable.name }} = data_py
+#            db.write(self,'{{ category }}', '{{ variable.name }}', data_py)
+#        else:
+#            raise IndexError("{{ variable.name }} have not the right number of variable (old:%s vs new:%s)" % (ref_len,new_len) )
+#
     {% endfor %}
 
 {{ category }} = {{ category | capitalize }}()
