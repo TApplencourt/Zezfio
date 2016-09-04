@@ -11,10 +11,12 @@
  *                                          
  */
 
-void extract_gz_into_buffer(const char *, const long unsigned int, char * const);
+void gzip2buffer            (const char *, const long unsigned int, char * const);
 long unsigned int skip_lines(const char * buffer, const int);
-void ezfio_extract_int     (char *, const long unsigned int, int *);
-int fast_atoi (const char * str);
+void buffer2int_impur       (char * const, const long unsigned int, int    * const);
+void buffer2long_impur      (char * const, const long unsigned int, long   * const);
+void buffer2double_impur    (char * const, const long unsigned int, double * const);
+void buffer2float_impur     (char * const, const long unsigned int, float  * const);
 
 /***
  *     ___                   ./                                 
@@ -23,21 +25,7 @@ int fast_atoi (const char * str);
  *               |                                            
  */
 
-/* The requirements are:
-1. Input string contains only numeric characters, or is empty
-2. Input string represents a number from 0 up to INT_MAX
-*/
-
- int fast_atoi( const char * str )
-{
-    int val = 0;
-    while( *str ) {
-        val = val*10 + (*str++ - '0');
-    }
-    return val;
-}
-
-void extract_gz_into_buffer(const char * filename,
+void gzip2buffer(const char * filename,
               const long unsigned int bytes_expected,
               char * const buffer) {
 
@@ -78,97 +66,147 @@ long unsigned int skip_lines(const char * buffer, const int number_of_line){
     return bytes_read + 1;
 }
 
-void ezfio_extract_int(char * const buffer, const long unsigned int scalars_supposed, int * const int_array){
+//Start of copy pasta for int/long/double/float
+void buffer2int_impur(char * const buffer, const long unsigned int scalars_supposed, int * const scalar_array){
 
   long unsigned int bytes_read = skip_lines(buffer, 2);
 
+  long unsigned int scalar_possitions = bytes_read;
+  long unsigned int scalar_read = 0;
 
-  long unsigned int int_possitions = bytes_read;
-
-  long unsigned int scalars_read = 0;
   while (buffer[bytes_read]) {
 
     if (buffer[bytes_read] == '\n') {
 
-      if (scalars_read > scalars_supposed) {
+      if (scalar_read > scalars_supposed) {
         fprintf(stderr, "Error: They are more value than (%lu) to read.\n",
-                        scalars_read);
+                        scalar_read);
         errno = -1;
         return;
       }
 
         buffer[bytes_read] = '\0';
-        int_array[scalars_read] = atoi( & buffer[int_possitions]);
-        scalars_read++;
+        scalar_array[scalar_read] = atoi( & buffer[scalar_possitions]);
+        scalar_read++;
 
-        int_possitions = bytes_read + 1;
+        scalar_possitions = bytes_read + 1;
     }
     bytes_read++;
   }
 
-  if (scalars_read < scalars_supposed) {
+  if (scalar_read < scalars_supposed) {
     fprintf(stderr, "Error: I read less value (%lu) than asked (%lu).\n",
-                    scalars_read, scalars_supposed);
+                    scalar_read, scalars_supposed);
     errno = -1;
   }
 
   return;
 }
 
-int main( int argc, const char* argv[] )
-{
-//  char *file =  "../input/bench.ezfio/bench/b1M.gz";
-//  long unsigned int nb_of_int = 10000000;
+void buffer2long_impur(char * const buffer, const long unsigned int scalars_supposed, long * const scalar_array){
 
-  const long unsigned int header_max_size = 200;
-  const long unsigned int nb_value_supposed = 10000000;
-  const long unsigned int chars_per_value = 10;
+  long unsigned int bytes_read = skip_lines(buffer, 2);
 
-  /* Number of bytes expected (with the \n) */
-  const long unsigned int bytes_expected = (1 + chars_per_value) * nb_value_supposed + header_max_size;
+  long unsigned int scalar_possitions = bytes_read;
+  long unsigned int scalar_read = 0;
 
-  /* Allocate the buffer of char uncompresed*/
-  char * buffer = (char * ) malloc(bytes_expected);
-  if (buffer == NULL) {
-    fprintf(stderr, "Allocate memory for uncompressed buffer failed: %s.\n",
-                    strerror(errno));
+  while (buffer[bytes_read]) {
+
+    if (buffer[bytes_read] == '\n') {
+
+      if (scalar_read > scalars_supposed) {
+        fprintf(stderr, "Error: They are more value than (%lu) to read.\n",
+                        scalar_read);
+        errno = -1;
+        return;
+      }
+
+        buffer[bytes_read] = '\0';
+        scalar_array[scalar_read] = atol( & buffer[scalar_possitions]);
+        scalar_read++;
+
+        scalar_possitions = bytes_read + 1;
+    }
+    bytes_read++;
   }
 
-  char *file =  "../input/bench.ezfio/bench/b100M.gz";
-  extract_gz_into_buffer(file,bytes_expected,buffer);
-  
-
-  if (errno != 0) {
-    printf("%s\n", "failed");
-  }
-  else {
-    printf("%s\n", "ok");
+  if (scalar_read < scalars_supposed) {
+    fprintf(stderr, "Error: I read less value (%lu) than asked (%lu).\n",
+                    scalar_read, scalars_supposed);
+    errno = -1;
   }
 
-  /* Create the buffer */
-  int * int_array = (int * ) malloc(sizeof(int) * nb_value_supposed);
-  if (int_array == NULL) {
-    fprintf(stderr, "Allocate memory failed: %s.\n",
-                      strerror(errno));
+  return;
+}
+
+void buffer2double_impur(char * const buffer, const long unsigned int scalars_supposed, double * const scalar_array){
+
+  long unsigned int bytes_read = skip_lines(buffer, 2);
+
+  long unsigned int scalar_possitions = bytes_read;
+  long unsigned int scalar_read = 0;
+
+  while (buffer[bytes_read]) {
+
+    if (buffer[bytes_read] == '\n') {
+
+      if (scalar_read > scalars_supposed) {
+        fprintf(stderr, "Error: They are more value than (%lu) to read.\n",
+                        scalar_read);
+        errno = -1;
+        return;
+      }
+
+        buffer[bytes_read] = '\0';
+        scalar_array[scalar_read] = atof( & buffer[scalar_possitions]);
+        scalar_read++;
+
+        scalar_possitions = bytes_read + 1;
+    }
+    bytes_read++;
   }
 
-
-   ezfio_extract_int(buffer,nb_value_supposed,int_array);
-
-  if (errno != 0) {
-    printf("%s\n", "failed");
-  }
-  else {
-    printf("%s\n", "ok");
+  if (scalar_read < scalars_supposed) {
+    fprintf(stderr, "Error: I read less value (%lu) than asked (%lu).\n",
+                    scalar_read, scalars_supposed);
+    errno = -1;
   }
 
+  return;
+}
 
-  for(int i=0;i<10;++i) {
-      printf("%d\n", int_array[i]);
+void buffer2float_impur(char * const buffer, const long unsigned int scalars_supposed, float * const scalar_array){
+
+  long unsigned int bytes_read = skip_lines(buffer, 2);
+
+  long unsigned int scalar_possitions = bytes_read;
+  long unsigned int scalar_read = 0;
+
+  while (buffer[bytes_read]) {
+
+    if (buffer[bytes_read] == '\n') {
+
+      if (scalar_read > scalars_supposed) {
+        fprintf(stderr, "Error: They are more value than (%lu) to read.\n",
+                        scalar_read);
+        errno = -1;
+        return;
+      }
+
+        buffer[bytes_read] = '\0';
+        scalar_array[scalar_read] = (float) atof( & buffer[scalar_possitions]);
+        scalar_read++;
+
+        scalar_possitions = bytes_read + 1;
+    }
+    bytes_read++;
   }
-  
-  free(int_array);
-  free(buffer);
 
-  return 0;
+  if (scalar_read < scalars_supposed) {
+    fprintf(stderr, "Error: I read less value (%lu) than asked (%lu).\n",
+                    scalar_read, scalars_supposed);
+    errno = -1;
+  }
+
+  return;
 }
